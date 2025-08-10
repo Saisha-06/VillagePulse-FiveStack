@@ -1,254 +1,205 @@
 # API Contract - Village Pulse
 
-This document defines the API contract between the frontend and backend for the Village Pulse application. It outlines all endpoints, request formats, and responses to ensure smooth integration and collaboration.
+This document defines the API contract between the frontend and backend for the Village Pulse application. It ensures smooth integration and clear communication between the mobile app (for villagers), the web dashboard (for departments), and the backend server.
+
+## Base URL
+All API endpoints are prefixed with:  
+`https://api.villagepulse.com/api/v1`
+  
+## Authentication Overview
+
+- Authentication and user management are handled by Firebase Authentication.
+  Users and departments authenticate via Firebase’s SDK using email/password or OTP.
+- The backend does not manage passwords or user credentials directly. Instead, it verifies Firebase-issued JWT tokens on every protected API request.
+- Each request to protected endpoints must include a valid Firebase JWT token in the Authorization header:
+  `Authorization: Bearer <firebase_jwt_token>`
+- Departments are predefined by the admin team in Firebase Authentication and can only login (no public registration). Role management is handled in Firebase or backend as needed.
+- User IDs (uid) from Firebase are used as primary identifiers across the backend and database.
+- Image uploads are stored in Firebase Cloud Storage, and URLs to those images are saved in the backend database.
+- Notifications to users and departments about new reports, status updates, or alerts are delivered via Firebase Cloud Messaging, triggered by backend events.
 
 ---
-# Users (Mobile App)
 
-## 🔐 Authentication & User Management
+# Data Models
 
-### 1. Send OTP
+> Note: User and Department id fields correspond to Firebase Authentication uid.
 
-- **Feature:** Request OTP for phone verification  
-- **HTTP Method:** POST  
-- **Endpoint Path:** `/api/auth/send-otp`  
-- **Description:** Sends a one-time password (OTP) to the user's phone number for verification.  
-
-**Request Body:**
+## User model
 ```json
 {
-  "phone": "+91XXXXXXXXXX"
-}
-```
-**Success Response (200 OK):**
-```json
-{
-  "message": "OTP sent successfully"
-}
-```
-**Error Responses:**
-```json
-{
-  "error": "Invalid phone number"
-}
-```
-```json
-{
-  "error": "Too many attempts. Try again later."
-}
-```
-### 2. Verify OTP & Register User
-
-- **Feature:** Register a new user after OTP is verified
-- **HTTP Method:** POST
-- **Endpoint Path:** /api/auth/register
-- **Description:** Creates a new user account after verifying the OTP and stores the user data in the database.
-
-**Request Body:**
-```json
-{
-  "name": "firstname lastname",
-  "email": "user@example.com",
-  "password": "userPassword123",
-  "phone": "+91XXXXXXXXXX",
-  "otp": "123456",
+  "uid": "string (Firebase user ID)",
+  "name": "string",
+  "email": "string",
+  "phone": "string",
   "location": {
-    "latitude": 15.2993,
-    "longitude": 74.1240
-  }
+    "latitude": "float",
+    "longitude": "float",
+    "village": "string (optional)"
+  },
+  "createdAt": "datetime"
 }
 ```
-**Success Response (201 Created):**
+## Department  model
 ```json
 {
-  "message": "User registered successfully",
-  "userId": "abc123"
+  "uid": "string (Firebase user ID)",
+  "name": "string (e.g., PWD, Electricity)",
+  "email": "string",
+  "phone": "string",
+  "assignedReports": ["r123", "r456"],
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
 }
 ```
-**Error Responses:**
+## Report model
 ```json
 {
-  "error": "Invalid OTP or expired"
+  "id": "string (auto-generated in backend DB)",
+  "userUid": "string (Firebase UID of reporter)",
+  "category": "string (e.g., Power Outage, Tree Fall)",
+  "description": "string",
+  "location": {
+    "latitude": "float",
+    "longitude": "float"
+  },
+  "imageUrl": "string (Firebase Storage URL, optional)",
+  "status": "string (enum: 'Pending' | 'Assigned' | 'In Progress' | 'Resolved' | 'Rejected')",
+  "departmentUid": "string (nullable; assigned department)",
+  "teamLead": {
+    "name": "string (optional)",
+    "phone": "string (optional)"
+  },
+  "resolutionImageUrl": "string (Firebase Storage URL, optional)",
+  "supportersCount": "integer",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
 }
 ```
+## Feedback model
 ```json
 {
-  "error": "Email or phone already registered"
+  "id": "string (auto-generated)",
+  "reportId": "string",
+  "userId": "string",
+  "rating": "integer (1-5)",
+  "comment": "string (optional)",
+  "createdAt": "datetime"
 }
 ```
-### 3. User Login
 
-- **Feature:** User Login
-- **HTTP Method:** POST
-- **Endpoint Path:** /api/auth/login
-- **Description:** Authenticates a user by verifying email and password. Returns an access token upon successful login.
+# Authentication & User Management APIs (Firebase JWT)
 
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "userPassword123"
-}
-```
+Since we're using Firebase Authentication, the backend won’t handle passwords or OTP generation directly. Instead, backend will verify Firebase-issued JWT tokens to authenticate users.
+
+---
+
+## 1. User Registration & Login
+
+- Handled entirely by Firebase Authentication (client side)
+- Users register or login via Firebase SDK in the mobile app using email/password or phone OTP
+- No backend endpoints needed for registration/login
+
+---
+
+## 2. Backend Endpoint: Verify Firebase JWT & Get User Profile
+
+- **Feature:** Verify Firebase token sent from client and fetch/create user record in backend DB
+- **Method:** POST
+- **Endpoint:** /api/auth/firebase-verify
+- **Description:** Backend verifies Firebase JWT, creates user if new, and returns app-specific JWT token for further API calls.
+
+**Request Headers:**
+Authorization: Bearer <firebase_id_token>
+
 **Success Response (200 OK):**
 ```json
 {
-  "message": "Login successful",
-  "token": "jwt_token_here",
+  "message": "User authenticated",
+  "token": "app_jwt_token",
   "user": {
     "id": "abc123",
-    "name": "firstname lastname",
+    "name": "Firstname Lastname",
     "email": "user@example.com",
-    "phone": "+91XXXXXXXXXX"
+    "phone": "+91XXXXXXXXXX",
+    "location": {
+      "latitude": 15.2993,
+      "longitude": 74.1240
+    }
   }
 }
 ```
-#### Error Responses:
-**401 Unauthorized:**
+**Error Responses:**
+
+**401 Unauthorized (invalid Firebase token)**
 ```json
 {
-  "error": "Invalid email or password"
+  "error": "Invalid Firebase token"
 }
 ```
-**500 Internal Server Error:**
+**500 Internal Server Error**
 ```json
 {
   "error": "Server error, please try again later"
 }
 ```
-## 📣 Report Management 
+---
 
-### 4. Report an Issue
+## 3. User Logout
 
-- **Feature:** Report a utility issue
-- **HTTP Method:** POST
-- **Endpoint Path:** /api/reports
-- **Description:** Allows a logged-in user to report an issue with optional image and precise location. Phone number is automatically included from the users profile.
+- Handled client-side by Firebase SDK
+- No backend endpoint needed
 
-**Headers:**
+---
 
-Authorization: Bearer <jwt_token>
+# Report Management APIs (Firebase Auth)
+
+- All endpoints require an Authorization header with a Firebase JWT token:
+Authorization: Bearer <firebase_jwt_token>
+- Image URLs should point to Firebase Cloud Storage or a trusted CDN. Backend must validate URL formats.
+
+---
+
+## 1. Report an Issue
+
+- **Feature:** Submit a new public utility issue
+- **Method:** POST
+- **Endpoint:** /api/reports
+- **Description:** Authenticated user submits an issue with category, description, location, optional image URL.
 
 **Request Body:**
 ```json
 {
   "category": "Fire",
-  "description": "Fire spotted near the main road.",
+  "description": "Fire near main road",
   "location": {
     "latitude": 15.2993,
     "longitude": 74.1240
   },
-  "imageUrl": "https://example.com/photo.jpg"  
+  "imageUrl": "https://example.com/photo.jpg" 
 }
 ```
-> imageUrl is optional.
-
-> 🔒 This requires user authentication. The backend should fetch the user ID & phone from token.
-
 **Success Response (201 Created):**
 ```json
 {
   "message": "Report submitted successfully",
-  "reportId": "r12345"
+  "id": "r12345"
 }
 ```
-#### Error Responses: 
+**Error Responses:**
 **400 Bad Request:**
 ```json
-{
-  "error": "Missing required fields"
-}
+{ "error": "Missing required fields" }
+```
+**401 Unauthorized:**
+```json
+{ "error": "Invalid or missing token" }
 ```
 **500 Internal Server Error:**
 ```json
-{
-  "error": "Could not save report"
-}
+{ "error": "Could not save report" }
 ```
-### 5. Receive Alerts for New Reports (Users)
-
-- **Feature:** Notify users when a new report is posted nearby
-- **HTTP Method:** GET
-- **Endpoint Path:** /api/reports/alerts
-- **Description:** Retrieves a list of newly submitted public reports within the user’s chosen radius since their last check. Useful for keeping residents informed about ongoing issues in their area.
-
-**Headers:**
-
-Authorization: Bearer <jwt_token>
-
-**Request Parameters (Query):**
-`/api/reports/alerts?latitude=15.2993&longitude=74.1240&radius=3&since=2025-08-09T10:00:00Z`
-
-| Parameter |	 Type  | Required |	                    Description                      |
-|-----------|--------|----------|------------------------------------------------------|
-| latitude  |	float  |    Yes	  |               User’s current latitude                |
-| longitude |	float	 |    Yes	  |               User’s current longitude               |
-| radius	  | number |    No	  |       Search radius in kilometers (default: 3)       |
-| since	    | string |    No	  | ISO timestamp to fetch only reports created after it |
-
-**Success Response (200 OK):**
-```json
-{
-  "newReports": [
-    {
-      "id": "r123",
-      "category": "Power Outage",
-      "description": "Electricity gone since 2 PM",
-      "location": {
-        "latitude": 15.3001,
-        "longitude": 74.1239
-      },
-      "timestamp": "2025-08-09T14:45:00Z",
-      "reporter": {
-        "name": "Anonymous"
-      },
-      "status": "Pending"
-    }
-  ]
-}
-```
-## 6. Report details
-
-- **Feature:** Get Report Details  
-- **Method:** GET  
-- **Path:** /api/reports/:reportId  
-- **Description:** Returns full details of a specific report (used on report details screen).
-
-**Headers:**  
-
-`Authorization: Bearer <jwt_token>`
-
-### Success Response (200 OK):  
-```json
-{
-  "report": {
-    "id": "r001",
-    "title": "Broken Streetlight",
-    "description": "Streetlight not working near park",
-    "status": "Pending",
-    "category": "Electricity",
-    "location": { "latitude": 12.345, "longitude": 67.890 },
-    "imageUrl": "https://example.com/image.jpg",
-    "teamLead": null,
-    "createdAt": "2025-08-01T10:00:00Z",
-    "updatedAt": "2025-08-05T12:00:00Z"
-  }
-}
-```
-### Errors:  
-**401 Unauthorized:**
-```json
-{
-  "error": "Authentication required"
-}
-```
-**404 Not Found:** 
-```json
-{
-  "error": "Report not found"
-}
-```
-## 7. View Nearby Reports
+---
+## 2. View Nearby Reports
 
 - **Feature:** Get reports around user's current location
 - **HTTP Method:** GET
@@ -256,10 +207,7 @@ Authorization: Bearer <jwt_token>
 - **Description:** Retrieves a list of recent public reports within a certain radius (e.g., 3 km) of the user’s current location. Helps users stay aware of local issues.
 
 **Headers:**
-
-Authorization: Bearer <jwt_token>
-
-> Backend will use the user’s location from their profile.
+Authorization: Bearer <firebase_jwt_token>
 
 **Request Parameters (Query):**
 
@@ -284,10 +232,9 @@ Authorization: Bearer <jwt_token>
         "latitude": 15.3001,
         "longitude": 74.1239
       },
-      "timestamp": "2025-08-08T10:30:00Z",
-      "reporter": {
-        "name": "John Fernandes"
-      },
+      "createdAt": "2025-08-01T10:00:00Z",
+      "updatedAt": "2025-08-05T12:00:00Z",
+"supportersCount": 3,
       "status": "Pending",
       "imageUrl": "https://example.com/power_issue.jpg"
     }
@@ -307,7 +254,118 @@ Authorization: Bearer <jwt_token>
   "error": "Failed to fetch nearby reports"
 }
 ```
-## 8. Get My Reports
+## 3. Report details
+
+- **Feature:** Get Report Details by ID
+- **Method:** GET  
+- **Path:** /api/reports/:id  
+- **Description:** Returns full details of a specific report (used on report details screen).
+
+**Headers:**  
+`Authorization: Bearer <firebase_jwt_token>`
+
+### Success Response (200 OK):  
+```json
+{
+  "report": {
+    "id": "r001",
+    "userId": "u123",
+    "category": "Electricity",
+    "description": "Streetlight not working near park",
+    "status": "Pending",
+    "location": {
+      "latitude": 15.2993,
+      "longitude": 74.1240
+    },
+    "imageUrl": "https://example.com/image.jpg",
+    "departmentId": "d456",
+    "teamLead": {
+      "name": "John Doe",
+      "phone": "+919999999999"
+    },
+    "resolutionImageUrl": "https://example.com/resolution.jpg",
+    "supportersCount": 5,
+    "createdAt": "2025-08-01T10:00:00Z",
+    "updatedAt": "2025-08-05T12:00:00Z"
+  }
+}
+```
+### Errors:  
+**401 Unauthorized:**
+```json
+{
+  "error": "Authentication required"
+}
+```
+**404 Not Found:** 
+```json
+{
+  "error": "Report not found"
+}
+```
+# 4. Receive Alerts for New Reports
+
+- **Feature:** Notify users when a new report is posted nearby
+- **HTTP Method:** GET
+- **Endpoint Path:** /api/reports/alerts
+- **Description:** Retrieves a list of newly submitted public reports within the user’s chosen radius since their last check. Useful for keeping residents informed about ongoing issues in their area.
+
+**Headers:**
+`Authorization: Bearer <firebase_jwt_token>`
+
+**Request Parameters (Query):**
+`/api/reports/alerts?latitude=15.2993&longitude=74.1240&radius=3&since=2025-08-09T10:00:00Z`
+
+| Parameter |	 Type  | Required |	                    Description                      |
+|-----------|--------|----------|------------------------------------------------------|
+| latitude  |	float  |    Yes	  |               User’s current latitude                |
+| longitude |	float	 |    Yes	  |               User’s current longitude               |
+| radius	  | number |    No	  |       Search radius in kilometers (default: 3)       |
+| since	    | string |    No	  | ISO timestamp to fetch only reports created after it |
+
+>If since omitted, return reports from the last 24 hours.
+>If since provided, return reports created after that timestamp.
+
+**Success Response (200 OK):**
+```json
+{
+  "newReports": [
+    {
+      "id": "r123",
+      "category": "Power Outage",
+      "description": "Electricity gone since 2 PM",
+      "location": {
+        "latitude": 15.3001,
+        "longitude": 74.1239
+      },
+        "createdAt": "2025-08-01T10:00:00Z",
+    "updatedAt": "2025-08-05T12:00:00Z",
+"supportersCount": 3,
+          "status": "Pending"
+    }
+  ]
+}
+```
+**Error Responses:**
+**400 Bad Request:**
+```json
+{
+  "error": "Missing or invalid location parameters"
+}
+```
+**401 Unauthorized:**
+```json
+{
+  "error": "Authentication required"
+}
+```
+**500 Internal Server Error:**
+```json
+{
+  "error": "Failed to fetch alerts"
+}
+```
+## 5. Get My Reports
 
 - **Feature:** Fetch all reports submitted by the currently logged-in user  
 - **HTTP Method:** GET  
@@ -315,8 +373,7 @@ Authorization: Bearer <jwt_token>
 - **Description:** Returns a list of reports submitted by the authenticated user. Useful for showing their reporting history on the user dashboard or app.
 
 **Headers:**
-
-Authorization: Bearer <jwt_token>
+`Authorization: Bearer <firebase_jwt_token>`
 
 **Success Response (200 OK):**
 ```json
@@ -333,7 +390,9 @@ Authorization: Bearer <jwt_token>
       },
       "imageUrl": "https://example.com/tree.jpg",
       "status": "Resolved",
-      "createdAt": "2025-08-07T15:10:00Z"
+"supportersCount": 3,
+      "createdAt": "2025-08-07T15:10:00Z",
+    "updatedAt": "2025-08-05T12:00:00Z"
     }
   ]
 }
@@ -351,17 +410,18 @@ Authorization: Bearer <jwt_token>
   "error": "Unable to fetch your reports at the moment"
 }
 ```
-### 9. Support a Report
+### 6. Support a Report
 (Useful when multiple users report or support the same issue)
+> Backend enforces that each user can support a report only once.
+> Duplicate support attempts return 409 Conflict.
 
 - **Feature:** Upvote / support an already submitted report  
 - **HTTP Method:** POST  
-- **Endpoint Path:** `/api/reports/:reportId/support`  
+- **Endpoint Path:** `/api/reports/:id/support`  
 - **Description:** Allows a logged-in user to support (or agree with) a reported issue. Helps departments prioritize based on number of affected users.
 
 **Headers:**
-
-Authorization: Bearer <jwt_token>
+`Authorization: Bearer <firebase_jwt_token>`
 
 **Request Parameters (Path):**
 - `id` (string): Report ID to support
@@ -370,8 +430,8 @@ Authorization: Bearer <jwt_token>
 ```json
 {
   "message": "You supported this report successfully",
-  "reportId": "r789",
-  "supportCount": 3
+  "id": "r789",
+  "supportersCount": 3
 }
 ```
 #### Error Responses:
@@ -393,20 +453,21 @@ Authorization: Bearer <jwt_token>
   "error": "You have already supported this report"
 }
 ```
-### 10. Submit Feedback for a Report
+### 6. Submit Feedback for a Report
 
 - **Feature:** Allow users to optionally provide feedback and rate the resolution of their report  
 - **HTTP Method:** POST  
-- **Endpoint Path:** `/api/reports/:reportId/feedback`  
+- **Endpoint Path:** `/api/reports/:id/feedback`  
 - **Description:** Enables the users to submit a 1–5 star rating and feedback after a report is marked as "Resolved".
 
 **Headers:**
+`Authorization: Bearer <firebase_jwt_token>`
 
-`Authorization: Bearer <jwt_token>`
+> Backend must verify that the report status is "Resolved" before accepting feedback.
 
 **Request Parameters (Path):**
 
-`reportId`(string) - report ID for which feedback is being given. 
+`id`(string) - report ID for which feedback is being given. 
 
 **Request Body:**
 ```json
@@ -420,7 +481,7 @@ Authorization: Bearer <jwt_token>
 {
   "message": "Feedback submitted successfully",
   "feedback": {
-    "reportId": "r001",
+    "id": "r001",
     "rating": 4,
     "comment": "Resolved quickly, but cleaner could’ve done a better job."
   }
