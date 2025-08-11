@@ -27,26 +27,26 @@ All API endpoints are prefixed with:
 ### User model
 ```json
 {
-  "uid": "string (Firebase user ID)",
+  "id": "string (Firebase UID)",
   "name": "string",
   "email": "string",
   "phone": "string",
   "location": {
-    "latitude": "float",
-    "longitude": "float",
+    "latitude": "number",
+    "longitude": "number",
     "village": "string (optional)"
   },
-  "createdAt": "datetime"
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
 }
 ```
 ### Department  model
 ```json
 {
-  "uid": "string (Firebase user ID)",
+  "id": "string (Firebase UID)",
   "name": "string (e.g., PWD, Electricity)",
   "email": "string",
   "phone": "string",
-  "assignedReports": ["r123", "r456"],
   "createdAt": "datetime",
   "updatedAt": "datetime"
 }
@@ -54,23 +54,24 @@ All API endpoints are prefixed with:
 ### Report model
 ```json
 {
-  "id": "string (auto-generated in backend DB)",
-  "userUid": "string (Firebase UID of reporter)",
-  "category": "string (e.g., Power Outage, Tree Fall)",
+  "id": "string (auto-generated)",
+  "userId": "string",
+  "category": "string",
   "description": "string",
   "location": {
-    "latitude": "float",
-    "longitude": "float"
+    "latitude": "number",
+    "longitude": "number"
   },
-  "imageUrl": "string (Firebase Storage URL, optional)",
+  "imageUrl": "string (optional)",
   "status": "string (enum: 'Pending' | 'Assigned' | 'In Progress' | 'Resolved' | 'Rejected')",
-  "departmentUid": "string (nullable; assigned department)",
+  "departmentId": "string (nullable)",
   "teamLead": {
     "name": "string (optional)",
     "phone": "string (optional)"
   },
-  "resolutionImageUrl": "string (Firebase Storage URL, optional)",
-  "supportersCount": "integer",
+  "resolutionImageUrls": ["string"],
+  "resolutionNote": "string",
+  "supportersCount": "number",
   "createdAt": "datetime",
   "updatedAt": "datetime"
 }
