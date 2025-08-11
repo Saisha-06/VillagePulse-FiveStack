@@ -20,11 +20,11 @@ All API endpoints are prefixed with:
 
 ---
 
-# Data Models
+## Data Models
 
 > Note: User and Department id fields correspond to Firebase Authentication uid.
 
-## User model
+### User model
 ```json
 {
   "uid": "string (Firebase user ID)",
@@ -39,7 +39,7 @@ All API endpoints are prefixed with:
   "createdAt": "datetime"
 }
 ```
-## Department  model
+### Department  model
 ```json
 {
   "uid": "string (Firebase user ID)",
@@ -51,7 +51,7 @@ All API endpoints are prefixed with:
   "updatedAt": "datetime"
 }
 ```
-## Report model
+### Report model
 ```json
 {
   "id": "string (auto-generated in backend DB)",
@@ -75,7 +75,7 @@ All API endpoints are prefixed with:
   "updatedAt": "datetime"
 }
 ```
-## Feedback model
+### Feedback model
 ```json
 {
   "id": "string (auto-generated)",
@@ -87,21 +87,19 @@ All API endpoints are prefixed with:
 }
 ```
 
-# Authentication & User Management APIs (Firebase JWT)
+## Authentication & User Management APIs (Firebase JWT)
 
 Since we're using Firebase Authentication, the backend won’t handle passwords or OTP generation directly. Instead, backend will verify Firebase-issued JWT tokens to authenticate users.
 
 ---
 
-## 1. User Registration & Login
+### 1. User Registration & Login
 
 - Handled entirely by Firebase Authentication (client side)
 - Users register or login via Firebase SDK in the mobile app using email/password or phone OTP
 - No backend endpoints needed for registration/login
 
----
-
-## 2. Backend Endpoint: Verify Firebase JWT & Get User Profile
+### 2. Backend Endpoint: Verify Firebase JWT & Get User Profile
 
 - **Feature:** Verify Firebase token sent from client and fetch/create user record in backend DB
 - **Method:** POST
@@ -129,29 +127,21 @@ Authorization: Bearer <firebase_id_token>
 }
 ```
 **Error Responses:**
-
 **401 Unauthorized (invalid Firebase token)**
 ```json
-{
-  "error": "Invalid Firebase token"
-}
+{ "error": "Invalid Firebase token" }
 ```
 **500 Internal Server Error**
 ```json
-{
-  "error": "Server error, please try again later"
-}
+{ "error": "Server error, please try again later" }
 ```
----
 
-## 3. User Logout
+### 3. User Logout
 
 - Handled client-side by Firebase SDK
 - No backend endpoint needed
 
----
-
-# Report Management APIs (Firebase Auth)
+## Report Management APIs (Firebase Auth) 
 
 - All endpoints require an Authorization header with a Firebase JWT token:
 Authorization: Bearer <firebase_id_token>
@@ -159,7 +149,7 @@ Authorization: Bearer <firebase_id_token>
 
 ---
 
-## 1. Report an Issue
+### 1. Report an Issue
 
 - **Feature:** Submit a new public utility issue
 - **Method:** POST
@@ -198,8 +188,8 @@ Authorization: Bearer <firebase_id_token>
 ```json
 { "error": "Could not save report" }
 ```
----
-## 2. View Nearby Reports
+
+### 2. View Nearby Reports
 
 - **Feature:** Get reports around user's current location
 - **HTTP Method:** GET
@@ -210,7 +200,6 @@ Authorization: Bearer <firebase_id_token>
 Authorization: Bearer <firebase_id_token>
 
 **Request Parameters (Query):**
-
 `/api/reports/nearby?latitude=15.2993&longitude=74.1240&radius=3`
 
 | Parameter | Type   | Required | Description                            |
@@ -244,17 +233,13 @@ Authorization: Bearer <firebase_id_token>
 #### Error Responses:
 **400 Bad Request:**
 ```json
-{
-  "error": "Missing or invalid location parameters"
-}
+{ "error": "Missing or invalid location parameters" }
 ```
 **500 Internal Server Error:**
 ```json
-{
-  "error": "Failed to fetch nearby reports"
-}
+{ "error": "Failed to fetch nearby reports" }
 ```
-## 3. Report details
+### 3. Report details
 
 - **Feature:** Get Report Details by ID
 - **Method:** GET  
@@ -293,17 +278,13 @@ Authorization: Bearer <firebase_id_token>
 ### Errors:  
 **401 Unauthorized:**
 ```json
-{
-  "error": "Authentication required"
-}
+{ "error": "Authentication required" }
 ```
 **404 Not Found:** 
 ```json
-{
-  "error": "Report not found"
-}
+{ "error": "Report not found" }
 ```
-# 4. Receive Alerts for New Reports
+### 4. Receive Alerts for New Reports
 
 - **Feature:** Notify users when a new report is posted nearby
 - **HTTP Method:** GET
@@ -325,6 +306,7 @@ Authorization: Bearer <firebase_id_token>
 
 >If since omitted, return reports from the last 24 hours.
 >If since provided, return reports created after that timestamp.
+>The backend will use Firebase Cloud Messaging (FCM) to send a push notification to the user's device when a new report is submitted within their defined alert radius. The user's device must be registered with the backend for this functionality.
 
 **Success Response (200 OK):**
 ```json
@@ -349,23 +331,17 @@ Authorization: Bearer <firebase_id_token>
 **Error Responses:**
 **400 Bad Request:**
 ```json
-{
-  "error": "Missing or invalid location parameters"
-}
+{ "error": "Missing or invalid location parameters" }
 ```
 **401 Unauthorized:**
 ```json
-{
-  "error": "Authentication required"
-}
+{ "error": "Authentication required" }
 ```
 **500 Internal Server Error:**
 ```json
-{
-  "error": "Failed to fetch alerts"
-}
+{ "error": "Failed to fetch alerts" }
 ```
-## 5. Get My Reports
+### 5. Get My Reports
 
 - **Feature:** Fetch all reports submitted by the currently logged-in user  
 - **HTTP Method:** GET  
@@ -623,10 +599,10 @@ Authorization: Bearer <firebase_id_token>
 
 ### 4. Update Report Status 
 
-- **Feature:** Update the status of a reported issue  
+- **Feature:** Update the status of a reported issue and optionally attach proof of resolution
 - **HTTP Method:** PATCH  
-- **Endpoint Path:** `/api/departments/reports/:id/status`  
-- **Description:** Allows an authorized department to update the status of an assigned report to either `In Progress`, `Resolved`, or `Rejected`.
+- **Endpoint Path:** `/api/departments/reports/:id`  
+- **Description:** Allows an authorized department to update the status of an assigned report. The endpoint can also ne used to add resolution images when the report is marked as Resolved.
 
 **Headers:**
 Authorization: Bearer <firebase_id_token>
@@ -643,7 +619,7 @@ Authorization: Bearer <firebase_id_token>
 **Success Response (200 OK):**
 ```json
 {
-  "message": "Report status updated successfully",
+  "message": "Report status and/or resolution proof updated successfully",
   "updatedReport": {
     "id": "r001",
     "status": "Resolved",
@@ -683,63 +659,6 @@ Authorization: Bearer <firebase_id_token>
 }
 ```
 > Note: On successful status update, backend triggers notification to report owner and supporters.
-
-## 5. Upload Proof of Resolution
-
-- **Feature:** Upload one or more images as proof of resolution for a report
-- **HTTP Method:** POST
-- **Endpoint:** /api/departments/reports/:id/proof
-- **Description:** Attach image URLs to a resolved report.
-
-**Headers:**
-Authorization: Bearer <firebase_id_token>
-
-**Request Parameters (Path):**
-id (string): Report ID
-
-**Request Body:**
-```json
-{
-  "resolutionImageUrls": [
-    "https://firebasestorage.googleapis.com/v0/b/example.appspot.com/o/resolution1.jpg",
-    "https://firebasestorage.googleapis.com/v0/b/example.appspot.com/o/resolution2.jpg"
-  ]
-}
-```
-**Success Response (200 OK):**
-```json
-{
-  "message": "Proof of resolution uploaded successfully",
-  "id": "r12345",
-  "resolutionImageUrls": [
-    "https://firebasestorage.googleapis.com/v0/b/example.appspot.com/o/resolution1.jpg",
-    "https://firebasestorage.googleapis.com/v0/b/example.appspot.com/o/resolution2.jpg"
-  ]
-}
-```
-> Note: Backend triggers notification to report owner and supporters on successful upload.
-
-**Error Responses:**
-**400 Bad Request:**
-```json
-{ "error": "Resolution images required" }
-```
-**401 Unauthorized:**
-```json
-{ "error": "Authentication required" }
-```
-**403 Forbidden:**
-```json
-{ "error": "Access denied: department role required" }
-```
-**404 Not Found:**
-```json
-{ "error": "Report not found" }
-```
-500 Internal Server Error:
-```json
-{ "error": "Failed to upload proof of resolution" }
-```
 
 ## 6. View Past Reports
 
@@ -917,15 +836,11 @@ Content-Type: application/json
 
 **Request Body:**
 ```json
-{
-  "deviceToken": "FCM device token string"
-}
+{ "deviceToken": "FCM device token string" }
 ```
 **Success Response (200 OK):**
 ```json
-{
-  "message": "Device registered for notifications"
-}
+{ "message": "Device registered for notifications" }
 ```
 **Error Responses:**
 **400 Bad Request:**
@@ -953,16 +868,13 @@ Authorization: Bearer <firebase_id_token>
 Content-Type: application/json
 
 **Path Parameters:**
-
 |Parameter|Type  |Description               |
 |---------|------|--------------------------|
 |id	      |string|ID of the report to assign|
 
 **Request Body:**
 ```json
-{
-  "teamLead": "tl001",
-}
+{ "teamLead": "tl001" }
 ```
 > Note: At least one of teamId or workerId must be provided. Both can be provided if assigning a worker within a team.
 **Success Response (200 OK):**
