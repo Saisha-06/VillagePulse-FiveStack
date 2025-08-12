@@ -32,21 +32,30 @@
 ## 🚀 Installation & Setup
 
 1. **Clone the repository**  
-2. **Navigate to backend folder**
-3. **Install dependencies**
-4. **Start the server**
-5. **Server will run at** (http://localhost:3000)
-
-
+2. **Navigate to backend folder** - cd backend
+3. **Install dependencies** - npm install
+4. **Start the server** - node server.js
+5. **Server will run at** - (http://localhost:3000)
+   
 ---
 
 ## 📄 Access API Documentation
 
-Swagger UI is available at:  
-http://localhost:3000/api-docs
-Use it to view all endpoints, parameters, and example responses, and to test APIs directly.
+**Swagger UI is available at:** - http://localhost:3000/api-docs
+> Use it to view all endpoints, parameters, and example responses, and to test APIs directly.
 
 ---
+
+## 🧪 Testing the Endpoints
+
+**For authenticated routes, add this header:**
+Authorization: Bearer testtoken
+
+## 📌 Notes
+- **Auth is mocked** for testing — all authenticated requests use:
+{ "id": "testUserId", "role": "user" }
+
+- **Data is in-memory** — it resets whenever the server restarts.
 
 
 
