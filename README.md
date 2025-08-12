@@ -6,12 +6,12 @@
 
 ## 👥 Team Members
 
-- [Saisha Gaude](https://github.com/yourusername)
-- [Gautami Gaude](https://github.com/member2)
-- [Gleeson Fernandes](https://github.com/member3)
-- [Clyde Pereira](https://github.com/member4)
-- [Komal Patil](https://github.com/member5)
-- [Laksh Tuenkar](https://github.com/member6)
+- Saisha Gaude - https://github.com/Saisha-06
+- Gautami Gaude - https://github.com/Ga123456789-bit9
+- Gleeson Fernandes - https://github.com/gleeson-07
+- Clyde Pereira - https://github.com/nivuti
+- Komal Patil - https://github.com/nivuti
+- Laksh Tuenkar - https://github.com/LAKSHTUENKAR07
 
 ---
 
@@ -21,7 +21,7 @@
 
 - **Frontend (App):**  
 - **Frontend (Admin Web):** 
-- **Backend:**   
+- **Backend:** Node.js + Express.js
 - **Database:**  
 - **Storage:**   
 - **Notifications:**  
