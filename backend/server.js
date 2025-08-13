@@ -99,7 +99,7 @@ function verifyDepartmentRole(req, res, next) {
  *         description: Welcome message confirming backend is running
  */
 app.get('/', (req, res) => {
-  res.send('Village Pulse backend is running. Visit /api-docs for API documentation.');
+  res.send('Village Pulse backend is running. Visit https://villagepulse-fivestack.onrender.com/api-docs/ for API documentation.');
 });
 
 // ---------- AUTH ----------
