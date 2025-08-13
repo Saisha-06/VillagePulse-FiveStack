@@ -497,7 +497,7 @@ Authorization: Bearer <firebase_id_token>
 }
 ```
 
-# Department Management APIs (Firebase Auth)
+## Department Management APIs (Firebase Auth)
 
 - All endpoints require an Authorization header with a Firebase JWT token:
 Authorization: Bearer <firebase_id_token>
@@ -507,12 +507,12 @@ Authorization: Bearer <firebase_id_token>
   
 ---
 
-## 1. Department Login
+### 1. Department Login
 
 > Since we use Firebase Authentication, department login is handled by Firebase SDK on the frontend. Backend APIs require the Firebase JWT token for authorization.
 No separate login endpoint needed here.
 
-## 2. Get All Assigned Reports 
+### 2. Get All Assigned Reports 
 
 - **Feature:** View all reports assigned to the logged-in department  
 - **HTTP Method:** GET  
@@ -573,7 +573,6 @@ Authorization: Bearer <firebase_id_token>
   "error": "Unauthorized access"
 }
 ```
-
  ### 3. Receive alerts for New Reports 
 
 - **Feature:** Notify departments when a new relevant report is submitted
@@ -615,7 +614,6 @@ Authorization: Bearer <firebase_id_token>
   ]
 }
 ```
-
 ### 4. Update Report Status 
 
 - **Feature:** Update the status of a reported issue and optionally attach proof of resolution
@@ -655,31 +653,23 @@ Authorization: Bearer <firebase_id_token>
 #### Error Responses:
 **400 Bad Request:**
 ```json
-{
-  "error": "Invalid status value"
-}
+{ "error": "Invalid status value" }
 ```
 **401 Unauthorized:**
 ```json
-{
-  "error": "Unauthorized access"
-}
+{ "error": "Unauthorized access" }
 ```
 **403 Forbidden:**
 ```json
-{
-  "error": "You are not authorized to update this report"
-}
+{ "error": "You are not authorized to update this report" }
 ```
 **500 Internal Server Error:**
 ```json
-{
-  "error": "Failed to send notification to user"
-}
+{ "error": "Failed to send notification to user" }
 ```
 > Note: On successful status update, backend triggers notification to report owner and supporters.
 
-## 6. View Past Reports
+### 6. View Past Reports
 
 - **Feature:** Fetch historical reports (Resolved or all) with filters
 - **HTTP Method:** GET
@@ -789,9 +779,7 @@ Authorization: Bearer <firebase_id_token>
 ```
 **500 Internal Server Error:**
 ```json
-{
-  "error": "Could not fetch feedback for this report"
-}
+{ "error": "Could not fetch feedback for this report" }
 ```
 ### 8. Department-Initiated Report via Emergency Call
 This allows a department to log a report based on a phone call received from a user (e.g., in case of fire or urgent issue where user couldn't submit via app).
@@ -832,17 +820,13 @@ Authorization: Bearer <firebase_id_token>
 #### Error Responses:
 **400 Bad Request:**
 ```json
-{
-  "error": "Missing required fields"
-}
+{ "error": "Missing required fields" }
 ```
 **401 Unauthorized:**
 ```json
-{
-  "error": "Department authentication required"
-}
+{ "error": "Department authentication required" }
 ```
-## 9. Register Department Device for Push Notifications
+### 9. Register Department Device for Push Notifications
 
 - **Feature:** Register a department device's FCM token so it can receive push notifications about new reports, status updates, etc.
 - **HTTP Method:** POST
@@ -874,8 +858,7 @@ Content-Type: application/json
 ```json
 { "error": "Failed to register device token" }
 ```
-
-## 10. Assign Report to Team 
+### 10. Assign Report to Team 
 
 - **Feature:** Assign a report to a specific department team or worker for action.
 - **HTTP Method:** PATCH
