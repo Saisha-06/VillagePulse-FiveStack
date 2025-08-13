@@ -224,150 +224,6 @@ app.post(`${API_PREFIX}/reports`, verifyFirebaseToken, (req, res) => {
 
 /**
  * @swagger
- * /api/v1/reports/nearby:
- *   get:
- *     summary: Get nearby reports
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: latitude
- *         schema:
- *           type: number
- *         required: true
- *         description: Latitude of the current location
- *       - in: query
- *         name: longitude
- *         schema:
- *           type: number
- *         required: true
- *         description: Longitude of the current location
- *       - in: query
- *         name: radius
- *         schema:
- *           type: number
- *         required: false
- *         description: Search radius in kilometers (default is 3)
- *     responses:
- *       200:
- *         description: Nearby reports fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 reports:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Report'
- *             example:
- *               message: "Nearby reports fetched successfully"
- *               reports:
- *                 - id: "e5f2a7d8-909f-4a6a-b38f-239d938a7ed2"
- *                   userId: "mockUserId"
- *                   category: "Electricity"
- *                   description: "Streetlight not working in main street"
- *                   location:
- *                     latitude: 15.3
- *                     longitude: 74.14
- *                     village: "Ponda"
- *                   imageUrl: "https://example.com/streetlight.jpg"
- *                   status: "Pending"
- *                   departmentId: null
- *                   teamLead: {}
- *                   resolutionImageUrls: []
- *                   resolutionNote: ""
- *                   supportersCount: 1
- *                   createdAt: "2025-08-12T07:14:21.750Z"
- *                   updatedAt: "2025-08-12T07:14:21.750Z"
- *       400:
- *         description: Missing or invalid location parameters
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *             example:
- *               error: "Missing or invalid location parameters"
- */
-app.get(`${API_PREFIX}/reports/nearby`, verifyFirebaseToken, (req, res) => {
-  const { latitude, longitude, radius = 3 } = req.query;
-  const latNum = Number(latitude), lonNum = Number(longitude);
-  if (!latNum || !lonNum) return res.status(400).json({ error: 'Missing or invalid location parameters' });
-  const results = data.reports.filter(r =>
-    Math.abs(r.location.latitude - latNum) <= 0.03 * radius &&
-    Math.abs(r.location.longitude - lonNum) <= 0.03 * radius
-  );
-  res.json({ message: 'Nearby reports fetched successfully', reports: results });
-});
-
-/**
- * @swagger
- * /api/v1/reports/{id}:
- *   get:
- *     summary: Get report details by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The unique report ID to fetch
- *     responses:
- *       200:
- *         description: Report details returned
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 report:
- *                   $ref: '#/components/schemas/Report'
- *             example:
- *               report:
- *                 id: "e5f2a7d8-909f-4a6a-b38f-239d938a7ed2"
- *                 userId: "mockUserId"
- *                 category: "Electricity"
- *                 description: "Streetlight not working in main street"
- *                 location:
- *                   latitude: 15.3
- *                   longitude: 74.14
- *                   village: "Ponda"
- *                 imageUrl: "https://example.com/streetlight.jpg"
- *                 status: "Pending"
- *                 departmentId: null
- *                 teamLead: {}
- *                 resolutionImageUrls: []
- *                 resolutionNote: ""
- *                 supportersCount: 1
- *                 createdAt: "2025-08-12T07:14:21.750Z"
- *                 updatedAt: "2025-08-12T07:14:21.750Z"
- *       404:
- *         description: Report not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *             example:
- *               error: "Report not found"
- */
-app.get(`${API_PREFIX}/reports/:id`, verifyFirebaseToken, (req, res) => {
-  const report = data.reports.find(r => r.id === req.params.id);
-  if (!report) return res.status(404).json({ error: 'Report not found' });
-  res.json({ report });
-});
-
-/**
- * @swagger
  * /api/v1/reports/alerts:
  *   get:
  *     summary: Get new report alerts near user
@@ -482,6 +338,89 @@ app.get('/api/v1/reports/alerts', verifyFirebaseToken, (req, res) => {
 
 /**
  * @swagger
+ * /api/v1/reports/nearby:
+ *   get:
+ *     summary: Get nearby reports
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: latitude
+ *         schema:
+ *           type: number
+ *         required: true
+ *         description: Latitude of the current location
+ *       - in: query
+ *         name: longitude
+ *         schema:
+ *           type: number
+ *         required: true
+ *         description: Longitude of the current location
+ *       - in: query
+ *         name: radius
+ *         schema:
+ *           type: number
+ *         required: false
+ *         description: Search radius in kilometers (default is 3)
+ *     responses:
+ *       200:
+ *         description: Nearby reports fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 reports:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Report'
+ *             example:
+ *               message: "Nearby reports fetched successfully"
+ *               reports:
+ *                 - id: "e5f2a7d8-909f-4a6a-b38f-239d938a7ed2"
+ *                   userId: "mockUserId"
+ *                   category: "Electricity"
+ *                   description: "Streetlight not working in main street"
+ *                   location:
+ *                     latitude: 15.3
+ *                     longitude: 74.14
+ *                     village: "Ponda"
+ *                   imageUrl: "https://example.com/streetlight.jpg"
+ *                   status: "Pending"
+ *                   departmentId: null
+ *                   teamLead: {}
+ *                   resolutionImageUrls: []
+ *                   resolutionNote: ""
+ *                   supportersCount: 1
+ *                   createdAt: "2025-08-12T07:14:21.750Z"
+ *                   updatedAt: "2025-08-12T07:14:21.750Z"
+ *       400:
+ *         description: Missing or invalid location parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             example:
+ *               error: "Missing or invalid location parameters"
+ */
+app.get(`${API_PREFIX}/reports/nearby`, verifyFirebaseToken, (req, res) => {
+  const { latitude, longitude, radius = 3 } = req.query;
+  const latNum = Number(latitude), lonNum = Number(longitude);
+  if (!latNum || !lonNum) return res.status(400).json({ error: 'Missing or invalid location parameters' });
+  const results = data.reports.filter(r =>
+    Math.abs(r.location.latitude - latNum) <= 0.03 * radius &&
+    Math.abs(r.location.longitude - lonNum) <= 0.03 * radius
+  );
+  res.json({ message: 'Nearby reports fetched successfully', reports: results });
+});
+
+/**
+ * @swagger
  * /api/v1/reports/my:
  *   get:
  *     summary: Get reports submitted by current user
@@ -559,6 +498,67 @@ app.get(`${API_PREFIX}/reports/my`, verifyFirebaseToken, (req, res) => {
   }
 
   res.status(200).json({ message: 'Your reports fetched successfully', reports: myReports });
+});
+
+/**
+ * @swagger
+ * /api/v1/reports/{id}:
+ *   get:
+ *     summary: Get report details by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The unique report ID to fetch
+ *     responses:
+ *       200:
+ *         description: Report details returned
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 report:
+ *                   $ref: '#/components/schemas/Report'
+ *             example:
+ *               report:
+ *                 id: "e5f2a7d8-909f-4a6a-b38f-239d938a7ed2"
+ *                 userId: "mockUserId"
+ *                 category: "Electricity"
+ *                 description: "Streetlight not working in main street"
+ *                 location:
+ *                   latitude: 15.3
+ *                   longitude: 74.14
+ *                   village: "Ponda"
+ *                 imageUrl: "https://example.com/streetlight.jpg"
+ *                 status: "Pending"
+ *                 departmentId: null
+ *                 teamLead: {}
+ *                 resolutionImageUrls: []
+ *                 resolutionNote: ""
+ *                 supportersCount: 1
+ *                 createdAt: "2025-08-12T07:14:21.750Z"
+ *                 updatedAt: "2025-08-12T07:14:21.750Z"
+ *       404:
+ *         description: Report not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *             example:
+ *               error: "Report not found"
+ */
+app.get(`${API_PREFIX}/reports/:id`, verifyFirebaseToken, (req, res) => {
+  const report = data.reports.find(r => r.id === req.params.id);
+  if (!report) return res.status(404).json({ error: 'Report not found' });
+  res.json({ report });
 });
 
 /**

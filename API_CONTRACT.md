@@ -60,8 +60,7 @@ All API endpoints are prefixed with:
   "description": "string",
   "location": {
     "latitude": "number",
-    "longitude": "number",
-      "village": "string"  
+    "longitude": "number"
   },
   "imageUrl": "string (optional)",
   "status": "string (enum: 'Pending' | 'Assigned' | 'In Progress' | 'Resolved' | 'Rejected')",
@@ -174,8 +173,7 @@ Authorization: Bearer <firebase_id_token>
 ```json
 {
   "message": "Report submitted successfully",
-  "id": "r12345",
-  "assignedDepartment": "Fire Safety"
+  "id": "r12345"
 }
 ```
 **Error Responses:**
@@ -346,22 +344,15 @@ Authorization: Bearer <firebase_id_token>
 ```
 ### 5. Get My Reports
 
-- **Feature**: Track status of own reports (View report history)    
+- **Feature:** Fetch all reports submitted by the currently logged-in user  
 - **HTTP Method:** GET  
 - **Endpoint Path:** `/api/reports/my`  
-- **Description:**  Returns all reports submitted by the authenticated user, with status transitions and timestamps.
+- **Description:** Returns a list of reports submitted by the authenticated user. Useful for showing their reporting history on the user dashboard or app.
 
 **Headers:**
 `Authorization: Bearer <firebase_id_token>`
 
-**Query Parameters**:
-| Parameter | Type   | Required | Description                          |
-|-----------|--------|----------|--------------------------------------|
-| `sort`    | string | No       | `asc` (oldest first) or `desc` (newest first) |
-| `status`  | string | No       | Filter by: `Pending`/`Assigned`/`In Progress`/`Resolved` |
-| `fromDate`| string | No       | ISO date (e.g., `2025-08-01`) - shows reports after this date |
-
-**Success Response (200 OK)**:
+**Success Response (200 OK):**
 ```json
 {
   "message": "Your reports fetched successfully",
@@ -369,15 +360,16 @@ Authorization: Bearer <firebase_id_token>
     {
       "id": "r456",
       "category": "Road Block",
-      "description": "Tree fallen across road",
+      "description": "Tree fallen across the road",
+      "location": {
+        "latitude": 15.3001,
+        "longitude": 74.1250
+      },
+      "imageUrl": "https://example.com/tree.jpg",
       "status": "Resolved",
-      "statusHistory": [
-        { "status": "Pending", "timestamp": "2025-08-07T15:10:00Z" },
-        { "status": "Assigned", "timestamp": "2025-08-08T10:15:00Z" },
-        { "status": "Resolved", "timestamp": "2025-08-10T09:30:00Z" }
-      ],
+"supportersCount": 3,
       "createdAt": "2025-08-07T15:10:00Z",
-      "updatedAt": "2025-08-10T09:30:00Z"
+    "updatedAt": "2025-08-05T12:00:00Z"
     }
   ]
 }
@@ -497,7 +489,7 @@ Authorization: Bearer <firebase_id_token>
 }
 ```
 
-## Department Management APIs (Firebase Auth)
+# Department Management APIs (Firebase Auth)
 
 - All endpoints require an Authorization header with a Firebase JWT token:
 Authorization: Bearer <firebase_id_token>
@@ -507,12 +499,12 @@ Authorization: Bearer <firebase_id_token>
   
 ---
 
-### 1. Department Login
+## 1. Department Login
 
 > Since we use Firebase Authentication, department login is handled by Firebase SDK on the frontend. Backend APIs require the Firebase JWT token for authorization.
 No separate login endpoint needed here.
 
-### 2. Get All Assigned Reports 
+## 2. Get All Assigned Reports 
 
 - **Feature:** View all reports assigned to the logged-in department  
 - **HTTP Method:** GET  
@@ -523,47 +515,36 @@ No separate login endpoint needed here.
 
 Authorization: Bearer <firebase_id_token>
 
-**Query Parameters**:
-| Parameter | Type   | Required | Description                          |
-|-----------|--------|----------|--------------------------------------|
-| status    | string | No       | Filter by: `Pending`/`Assigned`/`Resolved` |
-| page      | int    | No       | Pagination page (default: 1)         |
-| limit     | int    | No       | Items per page (default: 20)         |
+**Query Parameter:**
 
-**Example Requests**:
-- `GET /api/departments/reports` → Returns all assigned reports
-- `GET /api/departments/reports?status=Pending` → Only pending reports
-- `GET /api/departments/reports?page=2&limit=10` → Paginated results
+|Parameter|	Type |Required| 	Description                                                           |
+|---------|------|--------|-------------------------------------------------------------------------|
+|status	  |string|	No    |Filter reports by status (e.g., Pending, Assigned, In Progress, Resolved)|
+|category |string|	No	  |Filter reports by category name                                          |
+|page     |	int  |	No	  |Pagination page number (default: 1)                                      |
+|limit	  |int	 |No      |	Number of reports per page (default: 20)                                |
 
-> Backend **automatically filters** reports by the department's category (e.g., Fire Dept only sees "Fire" reports). 
+?status=<string>&category=<string>&page=<int>&limit=<int>
 
 **Success Response (200 OK):**
 ```json
 {
   "reports": [
     {
-      "id": "fire_123",
-      "category": "Fire",
-      "description": "Fire near market",
-      "status": "Pending",
-      "location": {
-        "village": "Mumbai East",
-        "latitude": 15.2963,
-        "longitude": 74.1235
-      },
-      "imageUrl": "https://firebasestorage.googleapis.com/.../fire_123.jpg",
-      "createdAt": "2025-08-20T09:00:00Z",
-      "updatedAt": "2025-08-20T09:00:00Z",
-      "reporter": {
-        "id": "u123",
-        "name": "Firstname Lastname",
-        "phone": "+918888888888"
-      }
+      "id": "r001",
+      "category": "Road Block",
+      "description": "Tree fallen on road near XYZ temple",
+      "location": { "latitude": 15.2963, "longitude": 74.1235 },
+      "imageUrl": "https://firebasestorage.googleapis.com/.../r001.jpg",
+      "status": "In Progress",
+      "createdAt": "2025-07-01T10:00:00Z",
+      "updatedAt": "2025-07-05T12:00:00Z",
+      "reporter": { "id": "u123", "name": "Firstname Lastname", "phone": "+918888888888" }
     }
   ],
   "page": 1,
   "limit": 20,
-  "totalReports": 15
+  "totalReports": 100
 }
 ```
 #### Error Response:
@@ -573,6 +554,7 @@ Authorization: Bearer <firebase_id_token>
   "error": "Unauthorized access"
 }
 ```
+
  ### 3. Receive alerts for New Reports 
 
 - **Feature:** Notify departments when a new relevant report is submitted
@@ -589,11 +571,12 @@ Authorization: Bearer <firebase_id_token>
 {
   "notification": {
     "title": "New Report Alert",
-    "body": "Fire reported near market"
+    "body": "Tree blocking road at XYZ junction"
   },
   "data": {
-    "reportId": "fire_123",  
-    "category": "Fire"
+    "id": "r456",
+    "category": "Road Block",
+    "status": "Pending"
   }
 }
 ```
@@ -614,6 +597,7 @@ Authorization: Bearer <firebase_id_token>
   ]
 }
 ```
+
 ### 4. Update Report Status 
 
 - **Feature:** Update the status of a reported issue and optionally attach proof of resolution
@@ -653,23 +637,31 @@ Authorization: Bearer <firebase_id_token>
 #### Error Responses:
 **400 Bad Request:**
 ```json
-{ "error": "Invalid status value" }
+{
+  "error": "Invalid status value"
+}
 ```
 **401 Unauthorized:**
 ```json
-{ "error": "Unauthorized access" }
+{
+  "error": "Unauthorized access"
+}
 ```
 **403 Forbidden:**
 ```json
-{ "error": "You are not authorized to update this report" }
+{
+  "error": "You are not authorized to update this report"
+}
 ```
 **500 Internal Server Error:**
 ```json
-{ "error": "Failed to send notification to user" }
+{
+  "error": "Failed to send notification to user"
+}
 ```
 > Note: On successful status update, backend triggers notification to report owner and supporters.
 
-### 6. View Past Reports
+## 6. View Past Reports
 
 - **Feature:** Fetch historical reports (Resolved or all) with filters
 - **HTTP Method:** GET
@@ -779,7 +771,9 @@ Authorization: Bearer <firebase_id_token>
 ```
 **500 Internal Server Error:**
 ```json
-{ "error": "Could not fetch feedback for this report" }
+{
+  "error": "Could not fetch feedback for this report"
+}
 ```
 ### 8. Department-Initiated Report via Emergency Call
 This allows a department to log a report based on a phone call received from a user (e.g., in case of fire or urgent issue where user couldn't submit via app).
@@ -820,13 +814,17 @@ Authorization: Bearer <firebase_id_token>
 #### Error Responses:
 **400 Bad Request:**
 ```json
-{ "error": "Missing required fields" }
+{
+  "error": "Missing required fields"
+}
 ```
 **401 Unauthorized:**
 ```json
-{ "error": "Department authentication required" }
+{
+  "error": "Department authentication required"
+}
 ```
-### 9. Register Department Device for Push Notifications
+## 9. Register Department Device for Push Notifications
 
 - **Feature:** Register a department device's FCM token so it can receive push notifications about new reports, status updates, etc.
 - **HTTP Method:** POST
@@ -858,7 +856,8 @@ Content-Type: application/json
 ```json
 { "error": "Failed to register device token" }
 ```
-### 10. Assign Report to Team 
+
+## 10. Assign Report to Team 
 
 - **Feature:** Assign a report to a specific department team or worker for action.
 - **HTTP Method:** PATCH
