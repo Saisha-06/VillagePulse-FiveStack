@@ -1,65 +1,48 @@
-# Village Pulse – Real-Time Public Utility Reporting Platform
+# VillagePulse Frontend (React + Vite)
 
-**Village Pulse** is a real-time public utility reporting platform that bridges the communication gap between rural citizens and government departments. It allows villagers to report local issues — such as power outages, tree falls, fire incidents, or roadblocks — using a simple text form, with optional photo uploads and automatic GPS tagging. These reports are shared with nearby users and displayed on a web dashboard for departments, where staff can track, update status, and upload proof of resolution. The system fosters transparency, faster response times, and more accountable public service delivery in rural areas.
+This is a minimal, milestone-ready frontend that connects (read-only) to your backend API.
 
----
+## Features (Milestone Scope)
+- React + Vite project inside `/frontend`
+- Core UI components: Navbar, list view, detail view
+- Live GET requests to your backend using `fetch`
+- Basic responsive layout using CSS Grid / Flexbox
+- Error + loading states
+- Environment-based API base URL
 
-## 👥 Team Members
+## Expected Backend Endpoints (adjust if different)
+- `GET /api/items` -> returns an array of items or `{ data: [...] }`
+- `GET /api/items/:id` -> returns a single item (object) or `{ data: { ... } }`
 
-- Saisha Gaude - https://github.com/Saisha-06
-- Gautami Gaude - https://github.com/Ga123456789-bit9
-- Gleeson Fernandes - https://github.com/gleeson-07
-- Clyde Pereira - https://github.com/nivuti
-- Komal Patil - https://github.com/nivuti
-- Laksh Tuenkar - https://github.com/LAKSHTUENKAR07
+Each item should have at least an `id` (or `_id`) and ideally `title`/`name`, `description`/`summary`.
 
----
+## Quick Start
 
-## 💻 Tech Stack
+1. Put this folder at the root of your repository as `/frontend`.
+2. Create `.env` with your API URL:
+   ```
+   VITE_API_BASE_URL=http://localhost:3000
+   ```
+3. Install and run:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+4. Open the shown local URL (default: http://localhost:5173).
 
-> *(TBD – To Be Decided)*
+## Adjusting Routes
+Edit `src/api/client.js` to match your backend. Example:
+```js
+// If your backend exposes /api/v1/resources
+export const api = {
+  listItems: () => http('/api/v1/resources'),
+  getItem: (id) => http(`/api/v1/resources/${id}`),
+}
+```
 
-- **Frontend (App):**  
-- **Frontend (Admin Web):** 
-- **Backend:** Node.js + Express.js
-- **Database:**  
-- **Storage:**   
-- **Notifications:**  
-- **Location Services:** 
-
----
-
-## 🚀 Installation & Setup
-
-1. **Clone the repository**  
-2. **Navigate to backend folder** - cd backend
-3. **Install dependencies** - npm install
-4. **Start the server** - node server.js
-5. **Server will run at** - (http://localhost:3000)
-   
----
-
-## 📄 Access API Documentation
-
-**Swagger UI is available at:** - http://localhost:3000/api-docs
-> Use it to view all endpoints, parameters, and example responses, and to test APIs directly.
-
----
-
-## 🧪 Testing the Endpoints
-
-**For authenticated routes, add this header:**
-Authorization: Bearer testtoken
-
-## 📌 Notes
-- **Auth is mocked** for testing — all authenticated requests use:
-{ "id": "testUserId", "role": "user" }
-
-- **Data is in-memory** — it resets whenever the server restarts.
-
-
-
-
-
-
-
+## Post-Milestone Ideas
+- Add a Create Item form (POST)
+- Add Update/Delete (PUT/PATCH/DELETE)
+- Add pagination, search, and filters
+- Add toasts, skeleton loaders, and nicer empty states
