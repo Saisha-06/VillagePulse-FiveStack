@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 export default function MyReports({ idToken }) {
   const [reports, setReports] = useState([]);
   useEffect(() => {
-    fetch("https://api.villagepulse.com/api/v1/reports/my", {
+    fetch("http://localhost:3000/api/v1/reports/my", {
       headers: { Authorization: `Bearer ${idToken}` }
     })
       .then(res => res.json())
@@ -17,7 +17,11 @@ export default function MyReports({ idToken }) {
       <ul>
         {reports.map(r => (
           <li key={r.id}>
-            <strong>{r.category}</strong> - {r.description} ({r.status})
+            <strong>{r.category}</strong> - {r.description} (
+              <span className={`status ${r.status.replace(/\s/g, '')}`}>
+              {r.status}
+              </span>
+            )          
           </li>
         ))}
       </ul>

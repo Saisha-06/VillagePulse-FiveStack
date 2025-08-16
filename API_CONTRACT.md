@@ -4,7 +4,7 @@ This document defines the API contract between the frontend and backend for the 
 
 ## Base URL
 All API endpoints are prefixed with:  
-`https://api.villagepulse.com/api/v1`
+`https://villagepulse-fivestack.onrender.com/api/v1/`
   
 ## Authentication Overview
 

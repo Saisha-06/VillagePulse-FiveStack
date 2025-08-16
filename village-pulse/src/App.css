@@ -1,0 +1,184 @@
+/* src/App.css */
+
+/* Basic Reset and Font */
+body, html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f6f8fa;
+  min-height: 100vh;
+  color: #222;
+}
+a {
+  color: #2b6cb0;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+header, nav {
+  background: #2b6cb0;
+  color: #fff;
+  padding: 1rem 2rem;
+  margin-bottom: 2rem;
+}
+nav {
+  display: flex;
+  gap: 2rem;
+}
+nav a {
+  color: #fff;
+  font-weight: 500;
+}
+nav a.active, nav a:focus-visible {
+  border-bottom: 2px solid #fff;
+}
+main {
+  margin: 2rem auto;
+  max-width: 700px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px #0002;
+  padding: 2rem;
+}
+h1, h2, h3 {
+  margin-top: 0;
+  color: #2b6cb0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+label {
+  font-weight: 500;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #c0c0c0;
+  font-size: 1rem;
+}
+input[type="file"] {
+  margin-top: 0.5rem;
+}
+button, input[type="submit"] {
+  background: #2b6cb0;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+button:hover, input[type="submit"]:hover {
+  background: #224b7a;
+}
+.error, .error-message {
+  color: #b00020;
+  background: #ffe5e8;
+  padding: 0.5rem 0.8rem;
+  border-radius: 5px;
+  margin-bottom: 1.2rem;
+}
+.success, .message {
+  color: #217a1e;
+  background: #e5ffe8;
+  padding: 0.5rem 0.8rem;
+  border-radius: 5px;
+  margin-bottom: 1.2rem;
+}
+.list, ul, ol {
+  padding-left: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+.report-list, .feedback-list {
+  list-style: none;
+  padding: 0;
+}
+.report-item, .feedback-item {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 0;
+}
+.report-item:last-child, .feedback-item:last-child {
+  border-bottom: none;
+}
+img.report-image, .resolution-image {
+  max-width: 300px;
+  border-radius: 5px;
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.status {
+  display: inline-block;
+  font-size: 0.95em;
+  padding: 0.2em 0.7em;
+  border-radius: 1em;
+  margin-left: 0.5em;
+}
+.status.Pending {
+  background: #fefcbf;
+  color: #756900;
+}
+.status.InProgress {
+  background: #bee3f8;
+  color: #276d99;
+}
+.status.Resolved {
+  background: #c6f6d5;
+  color: #217a1e;
+}
+.status.Rejected {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+.feedback-stars {
+  color: #ecc94b;
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+.support-count {
+  font-size: 0.95em;
+  color: #555;
+}
+.loading {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  margin: 2rem 0;
+}
+.footer {
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 3rem;
+  color: #888;
+  font-size: 0.97em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  main {
+    padding: 0.8rem;
+    margin: 1rem 0.4rem;
+  }
+  header, nav {
+    padding: 1rem;
+  }
+  h1, h2 {
+    font-size: 1.1em;
+  }
+  img.report-image, .resolution-image {
+    max-width: 98vw;
+  }
+}

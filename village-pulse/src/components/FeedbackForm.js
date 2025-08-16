@@ -9,7 +9,7 @@ export default function FeedbackForm({ reportId, idToken }) {
   async function handleSubmit(e) {
     e.preventDefault();
     const res = await fetch(
-      `https://api.villagepulse.com/api/v1/reports/${reportId}/feedback`,
+      `http://localhost:3000/api/v1/reports/${reportId}/feedback`,
       {
         method: "POST",
         headers: {

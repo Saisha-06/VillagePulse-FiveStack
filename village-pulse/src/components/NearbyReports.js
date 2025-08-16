@@ -9,9 +9,7 @@ export default function NearbyReports() {
       const user = auth.currentUser;
       if (!user) return;
       const token = await user.getIdToken();
-      // For demo, hardcoded lat/lon or use geolocation
-      const latitude = 15.3, longitude = 74.14;
-      const res = await fetch(`https://api.villagepulse.com/api/v1/reports/nearby?latitude=${latitude}&longitude=${longitude}&radius=3`, {
+      const res = await fetch(`http://localhost:3000/api/v1/reports/nearby?latitude=15.3&longitude=74.14&radius=3`, {
         headers: { Authorization: "Bearer " + token }
       });
       const data = await res.json();
@@ -27,7 +25,13 @@ export default function NearbyReports() {
         <div key={r.id} style={{border:'1px solid #eee',margin:8,padding:8}}>
           <div>{r.category}</div>
           <div>{r.description}</div>
-          <div>Status: {r.status}</div>
+          <div>
+            Status:
+            {" "}
+            <span className={`status ${r.status.replace(/\s/g, '')}`}>
+            {r.status}
+            </span>
+            </div>
           <Link to={`/report/${r.id}`}>Details</Link>
         </div>
       ))}

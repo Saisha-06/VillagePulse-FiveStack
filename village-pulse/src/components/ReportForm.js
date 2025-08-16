@@ -18,7 +18,7 @@ export default function ReportForm() {
     if (!user) return setMessage("Login required");
     try {
       const token = await user.getIdToken();
-      const res = await fetch("https://api.villagepulse.com/api/v1/reports", {
+      const res = await fetch("http://localhost:3000/api/v1/reports", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,7 +6,7 @@ export default function SupportReport({ reportId, idToken }) {
 
   async function handleSupport() {
     const res = await fetch(
-      `https://api.villagepulse.com/api/v1/reports/${reportId}/support`,
+      `http://localhost:3000/api/v1/reports/${reportId}/support`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${idToken}` }

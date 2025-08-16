@@ -1,12 +1,15 @@
 // src/components/SignIn.js
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom"; 
 
 export default function SignIn({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+    const navigate = useNavigate(); 
 
   async function handleSignIn(e) {
     e.preventDefault();
@@ -16,6 +19,7 @@ export default function SignIn({ onLogin }) {
       const idToken = await userCred.user.getIdToken();
       // Pass user ID and ID token to parent for backend auth usage
       onLogin({ uid: userCred.user.uid, idToken });
+            navigate("/"); 
     } catch (err) {
       setError(err.message || "Failed to sign in");
     }
@@ -42,6 +46,9 @@ export default function SignIn({ onLogin }) {
       <button type="submit" className="p-2 bg-blue-600 text-white rounded">
         Sign In
       </button>
+       <div style={{ marginTop: 10 }}>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
+      </div>
       {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
     </form>
   );

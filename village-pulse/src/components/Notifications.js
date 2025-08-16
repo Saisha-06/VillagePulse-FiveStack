@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { messaging } from "../firebase";
 import { getToken, onMessage } from "firebase/messaging";
 
-const VAPID_KEY = "YOUR_PUBLIC_VAPID_KEY"; // Get from Firebase console
+const VAPID_KEY = "BCtrB5ewEAuvWMLNzRpGVuvz78zN5xbzp25_JLr3HqTjmG3IuFnzKkTtyBhYmiP1Ncp4Fbnjid_tNNO6Iv19Ia4"; 
 
 export default function Notifications({ onToken }) {
   const [notification, setNotification] = useState(null);

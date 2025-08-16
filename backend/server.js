@@ -1,10 +1,11 @@
 const express = require('express');
+const cors = require('cors');
+const app = express();
+app.use(cors());
+app.use(express.json());
 const { swaggerUi, swaggerSpec } = require('./swagger');
 const data = require('./data');
 const { v4: uuidv4 } = require('uuid');
-
-const app = express();
-app.use(express.json());
 
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
