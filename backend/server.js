@@ -22,57 +22,6 @@ const { v4: uuidv4 } = require('uuid');
 //app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const API_PREFIX = '/api/v1';
 
-// Add this temporary diagnostic code at the top of your server.js file
-// AFTER the API_PREFIX definition but BEFORE any route definitions
-
-console.log('=== ROUTE DIAGNOSTIC ===');
-console.log('API_PREFIX value:', API_PREFIX);
-
-// Temporarily wrap Express methods to catch problematic routes
-const originalGet = app.get;
-const originalPost = app.post;
-const originalPut = app.put;
-const originalPatch = app.patch;
-const originalDelete = app.delete;
-const originalUse = app.use;
-
-function wrapMethod(method, methodName) {
-  return function(path, ...handlers) {
-    console.log(`Registering ${methodName} route: "${path}"`);
-    
-    // Check for common problematic patterns
-    if (typeof path === 'string') {
-      if (path.includes(':') && !path.match(/:[a-zA-Z_$][a-zA-Z0-9_$]*/)) {
-        console.error(`❌ POTENTIAL ISSUE: Route "${path}" has malformed parameter`);
-      }
-      if (path.includes(':/')) {
-        console.error(`❌ POTENTIAL ISSUE: Route "${path}" has ":/" pattern`);
-      }
-      if (path.match(/:$/)) {
-        console.error(`❌ POTENTIAL ISSUE: Route "${path}" ends with ":"`);
-      }
-    }
-    
-    try {
-      return method.call(this, path, ...handlers);
-    } catch (error) {
-      console.error(`❌ ERROR registering ${methodName} route "${path}":`, error.message);
-      throw error;
-    }
-  };
-}
-
-app.get = wrapMethod(originalGet, 'GET');
-app.post = wrapMethod(originalPost, 'POST');
-app.put = wrapMethod(originalPut, 'PUT');
-app.patch = wrapMethod(originalPatch, 'PATCH');
-app.delete = wrapMethod(originalDelete, 'DELETE');
-app.use = wrapMethod(originalUse, 'USE');
-
-console.log('=== END DIAGNOSTIC SETUP ===');
-
-// REMOVE THIS DIAGNOSTIC CODE AFTER FINDING THE ISSUE
-
 // ---- MOCK AUTH ----
 function verifyFirebaseToken(req, res, next) {
   const authHeader = req.headers['authorization'];
