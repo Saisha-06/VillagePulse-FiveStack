@@ -1,8 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:8081',  // frontend origin to allow
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+
 app.use(express.json());
+
 const { swaggerUi, swaggerSpec } = require('./swagger');
 const data = require('./data');
 const { v4: uuidv4 } = require('uuid');
