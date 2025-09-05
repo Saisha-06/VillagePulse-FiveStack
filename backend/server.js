@@ -298,7 +298,7 @@ app.post(`${API_PREFIX}/reports`, verifyFirebaseToken, (req, res) => {
  *                   resolutionNote: ""
  *                   resolutionImageUrls: []
  */
-app.get('/api/v1/reports/alerts', verifyFirebaseToken, (req, res) => {
+app.get(`${API_PREFIX}/reports/alerts`, verifyFirebaseToken, (req, res) => {
   const { latitude, longitude, radius = 3, since } = req.query;
   const latNum = Number(latitude);
   const lonNum = Number(longitude);
