@@ -1,16 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const corsOptions = {
-  origin: 'http://localhost:8081',  // frontend origin to allow
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 204,
-};
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
+app.use(cors({
+  origin: 'http://localhost:8081', // explicitly allow your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
 
 app.use(express.json());
 
